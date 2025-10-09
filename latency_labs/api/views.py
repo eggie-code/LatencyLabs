@@ -5,6 +5,9 @@ from .serializers import DeviceSerializer, MetricSerializer, AlertSerializer, Us
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
+import matplotlib.pyplot as plt
+from io import BytesIO
+import base64
 
 
 class DeviceList(generics.ListCreateAPIView):
@@ -25,6 +28,12 @@ class MetricList(generics.ListAPIView):
 class MetricDetail(generics.RetrieveAPIView):
     queryset = Metric.objects.all()
     serializer_class = MetricSerializer
+
+    def perform_create(self, serializer):
+        metric = serializer.save()
+        if metric.value > 80:  # Threshold
+            Alert.objects.create(
+                device=metric.device, alert_name='High CPU usage', message='CPU usage is high')
 
 
 class AlertList(generics.ListAPIView):
@@ -52,3 +61,21 @@ class LoginView(ObtainAuthToken):
         return Response({
             'token': token.key,
         })
+
+
+class MetricChartView(generics.RetrieveAPIView):
+    queryset = Metric.objects.all()
+    serializer_class = MetricSerializer
+
+    def get(self, request, *args, **kwargs):
+        metric = self.get_object()
+        # Generate chart
+        plt.plot(metric.values)
+        plt.xlabel('Time')
+        plt.ylabel('Value')
+        buffer = BytesIO()
+        plt.savefig(buffer, format='png')
+        buffer.seek(0)
+        image_png = buffer.getvalue()
+        buffer.close()
+        return Response({'image': base64.b64encode(image_png).decode('utf-8')})
