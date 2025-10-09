@@ -45,3 +45,4 @@ This API uses Django REST framework's built-in authentication system. To authent
 username: The username of the user
 password: The password of the user
 The response will include a token that can be used for subsequent API requests.
+
