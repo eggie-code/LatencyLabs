@@ -1,6 +1,5 @@
 from .serializers import DeviceSerializer, MetricSerializer, AlertSerializer, UserDeviceSerializer
-from rest_framework import generics
-from rest_framework import serializers
+from rest_framework import generics, serializers
 from .models import Device, Metric, Alert, UserDevice
 
 
