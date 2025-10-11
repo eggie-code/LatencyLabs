@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 from io import BytesIO
 import base64
 
+# implement API endpoints for devices, metrics, alerts, and user-device relationships
+
 
 class DeviceList(generics.ListCreateAPIView):
     queryset = Device.objects.all()
@@ -18,6 +20,8 @@ class DeviceList(generics.ListCreateAPIView):
 class DeviceDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Device.objects.all()
     serializer_class = DeviceSerializer
+
+# trigger alert on metric threshold breach
 
 
 class MetricList(generics.ListAPIView):
@@ -35,6 +39,8 @@ class MetricDetail(generics.RetrieveAPIView):
             Alert.objects.create(
                 device=metric.device, alert_name='High CPU usage', message='CPU usage is high')
 
+# alerting system
+
 
 class AlertList(generics.ListAPIView):
     queryset = Alert.objects.all()
@@ -44,6 +50,8 @@ class AlertList(generics.ListAPIView):
 class AlertDetail(generics.RetrieveAPIView):
     queryset = Alert.objects.all()
     serializer_class = AlertSerializer
+
+# implement user authentication
 
 
 class LoginView(ObtainAuthToken):
@@ -57,6 +65,8 @@ class LoginView(ObtainAuthToken):
         return Response({
             'token': token.key,
         })
+
+# data visualization
 
 
 class MetricChartView(generics.RetrieveAPIView):
@@ -75,3 +85,46 @@ class MetricChartView(generics.RetrieveAPIView):
         image_png = buffer.getvalue()
         buffer.close()
         return Response({'image': base64.b64encode(image_png).decode('utf-8')})
+
+# device groups
+
+
+class DeviceGroupView(generics.ListAPIView):
+    queryset = DeviceGroupView.objects.all()
+    serializer_class = DeviceSerializer
+
+
+class DeviceGroupDetailView(generics.RetrieveAPIView):
+    queryset = DeviceGroupView.objects.all()
+    serializer_class = DeviceSerializer
+
+    def get(self, request, *args, **kwargs):
+        group = self.get_object()
+        metrics = {}
+        for device in group.devices.all():
+            metrics[device.name] = device.metrics
+        return Response(metrics)
+
+# anomaly detection
+
+
+class AnomalyView(generics.ListAPIView):
+    queryset = Metric.objects.all()
+    serializer_class = MetricSerializer
+
+    def get(self, request, *args, **kwargs):
+        metrics = self.get_queryset()
+        anomalies = detect_anomalies([metric.value for metric in metrics])
+        return Response(anomalies)
+
+
+# historical data analysis
+
+class AnomalyView(generics.ListAPIView):
+    queryset = Metric.objects.all()
+    serializer_class = MetricSerializer
+
+    def get(self, request, *args, **kwargs):
+        metrics = self.get_queryset()
+        anomalies = detect_anomalies([metric.value for metric in metrics])
+        return Response(anomalies)

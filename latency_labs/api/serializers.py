@@ -2,6 +2,8 @@ from .serializers import DeviceSerializer, MetricSerializer, AlertSerializer, Us
 from rest_framework import generics, serializers
 from .models import Device, Metric, Alert, UserDevice
 
+# implement serializers API endpoints
+
 
 class DeviceSerializer(serializers.ModelSerializer):
     class Meta:
