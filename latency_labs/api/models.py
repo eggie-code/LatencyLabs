@@ -55,3 +55,8 @@ class MetricChartView(generics.RetrieveAPIView):
         image_png = buffer.getvalue()
         buffer.close()
         return Response({'image': base64.b64encode(image_png).decode('utf-8')})
+
+
+class DeviceGroup(models.Model):
+    name = models.CharFiels(max_length=100)
+    devices = models.ManyToManyField(Device)

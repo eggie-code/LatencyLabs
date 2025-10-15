@@ -118,8 +118,6 @@ class AnomalyView(generics.ListAPIView):
         return Response(anomalies)
 
 
-# historical data analysis
-
 class AnomalyView(generics.ListAPIView):
     queryset = Metric.objects.all()
     serializer_class = MetricSerializer
@@ -128,3 +126,19 @@ class AnomalyView(generics.ListAPIView):
         metrics = self.get_queryset()
         anomalies = detect_anomalies([metric.value for metric in metrics])
         return Response(anomalies)
+
+# historical data analysis
+
+
+class HistoricalDataView(generics.ListAPIView):
+    queryset = Metric.objects.all()
+    serializer_class = MetricSerializer
+
+    def get(self, request, *args, **kwargs):
+        device_id = request.GET.get('device_id')
+        start_time = request.GET.get('start_time')
+        end_time = request.GET.get('end_time')
+        metrics = self.get_queryset().filter(
+            device_id=device_id, timestamp__range=[start_time, end_time])
+
+        return Response([metric.value for metric in metrics])
